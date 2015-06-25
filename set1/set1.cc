@@ -73,3 +73,9 @@ vector<unsigned char> xor_bytes(vector<unsigned char> &a, vector<unsigned char> 
     }
     return out;
 }
+
+// frequency map made in python by looking at the output of the 'this' module
+// [(' ', 124), ('e', 92), ('t', 79), ('i', 53), ('a', 53), ('s', 46),
+//  ('o', 43), ('n', 42), ('r', 33), ('l', 33), ('h', 31), ('p', 22),
+//  ('u', 21), ('b', 21), ('y', 17), ('d', 17), ('c', 17), ('m', 16),
+//  ('f', 12), ('g', 11), ('x', 6), ('v', 5), ('w', 4), ('k', 2), ('z', 1)]
