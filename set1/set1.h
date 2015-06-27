@@ -3,8 +3,12 @@
 #include <string>
 #include <vector>
 
-std::vector<unsigned char> unhexlify(std::string &);
-std::string b64encode(std::vector<unsigned char> &bytes);
-std::vector<unsigned char> xor_bytes(std::vector<unsigned char> &, std::vector<unsigned char> &);
+typedef std::vector<unsigned char> byte_vector;
+
+byte_vector unhexlify(std::string &);
+std::string b64encode(byte_vector &);
+byte_vector xor_bytes(byte_vector &, byte_vector &);
+int score_key(byte_vector &, unsigned char);
+std::pair<int, int> find_best_key(byte_vector &);
 
 #endif
