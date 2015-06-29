@@ -1,5 +1,6 @@
 #include "set1.h"
 #include <map>
+#include <iostream>
 
 using namespace std;
 
@@ -56,11 +57,42 @@ string b64encode(byte_vector &bytes){
     }
     switch(bytes.size()%3){
     case 1:
-        out.append("=");
+        out.append("==");
         break;
     case 2:
         out.push_back('=');
         break;
+    }
+    return out;
+}
+
+byte_vector b64decode(string &s){
+    byte_vector out;
+    unsigned int buffer = 0;
+    int count = 0;
+    for(auto &it: s){
+        if(it == '=')
+            break;
+        buffer <<= 6;
+        for(int i=0; i < b64_alpha.length(); i++){
+            if(b64_alpha[i] == it){
+                buffer += i;
+                break;
+            }
+        }
+        if(++count == 4){
+            for(int i=2; i>=0; i--){
+                out.push_back((buffer >> i*8) & 0xff);
+            }
+            buffer = 0;
+            count = 0;
+        }
+    }
+    switch(count){
+    case 3:
+        out.push_back((buffer >> 8) & 0xff);
+    case 2:
+        out.push_back(buffer & 0xff);
     }
     return out;
 }
@@ -107,4 +139,51 @@ pair<int, int> find_best_key(byte_vector &bytes){
         }
     }
     return pair<int, int>(best, best_score);
+}
+
+byte_vector rk_xor_encrypt(byte_vector &bytes, byte_vector &key){
+    int key_index = 0;
+    byte_vector out;
+    for(auto &it: bytes){
+        out.push_back(it ^ key[key_index++]);
+        key_index %= key.size();
+    }
+    return out;
+}
+
+int hamming_distance(byte_vector &a, byte_vector &b){
+    byte_vector x = xor_bytes(a, b);
+    int distance = 0;
+    for(auto &c: x){
+        distance += __builtin_popcount(c);
+    }
+    return distance;
+}
+
+byte_vector find_rk_xor_key(byte_vector &bytes){
+    byte_vector key;
+    int keysize = 0;
+    double distance;
+    double best_distance = 1000000;
+    for(int i=2; i < 42; i++){
+        distance = 0;
+        for(int j=0; j < 4; j++){
+            int start = j*i;
+            int mid = j*i + i;
+            int end = j*i + 2*i;
+            auto a = byte_vector(bytes.begin()+start,
+                                 bytes.begin()+mid);
+            auto b = byte_vector(bytes.begin()+mid,
+                                 bytes.begin()+end);
+            distance += hamming_distance(a, b);
+            //cout << (int)a[0] << ' ' << (int)b[0] << endl;
+        }
+        distance /= i*4;
+        //cout << i << ' ' << distance << endl;
+        if(distance < best_distance){
+            best_distance = distance;
+            keysize = i;
+        }
+    }
+    return key;
 }
