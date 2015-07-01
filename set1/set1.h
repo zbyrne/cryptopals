@@ -15,6 +15,9 @@ namespace set1{
     byte_vector rk_xor_encrypt(byte_vector &, byte_vector &);
     int hamming_distance(byte_vector &, byte_vector &);
     byte_vector find_rk_xor_key(byte_vector &);
+    byte_vector find_best_key_of_length(byte_vector &, int);
+    std::vector<int> get_best_key_lengths(std::vector<double> &);
+    bool in(int, std::vector<int> &);
 }
 
 #endif

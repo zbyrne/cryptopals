@@ -16,5 +16,9 @@ int main(void){
     }
     auto cipher = b64decode(input);
     auto key = find_rk_xor_key(cipher);
+    auto plain = rk_xor_encrypt(cipher, key);
+    for(const auto &p: plain)
+        std::cout << p;
+    std::cout << std::endl;
     return 0;
 }

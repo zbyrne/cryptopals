@@ -12,8 +12,8 @@ int main(void){
     int best_key = -1;
     byte_vector candidate;
     ifs.open("4.txt");
-    while(ifs.good()){
-        std::getline(ifs, buffer);
+    while(ifs){
+        ifs >> buffer;
         ciphers.push_back(unhexlify(buffer));
     }
     for(auto &bytes: ciphers){

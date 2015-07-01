@@ -1,6 +1,7 @@
 #include "set1.h"
 #include <map>
 #include <iostream>
+#include <array>
 
 namespace set1{
 
@@ -173,7 +174,7 @@ namespace set1{
         byte_vector key;
         int keysize = 0;
         double distance;
-        double best_distance = 1000000;
+        auto key_distances = std::vector<double>(42, 1000000);
         for(int i=2; i < 42; i++){
             distance = 0;
             for(int j=0; j < 4; j++){
@@ -187,11 +188,64 @@ namespace set1{
                 distance += hamming_distance(a, b);
             }
             distance /= i*4;
-            if(distance < best_distance){
-                best_distance = distance;
-                keysize = i;
+            key_distances[i] = distance;
+        }
+        int best_score = 0;
+        byte_vector buffer;
+        for(const auto &candidate: get_best_key_lengths(key_distances)){
+            auto key_cand = find_best_key_of_length(bytes, candidate);
+            buffer = rk_xor_encrypt(bytes, key_cand);
+            auto score = score_key(buffer, 0);
+            if (score > best_score){
+                best_score = score;
+                key = key_cand;
             }
         }
         return key;
+    }
+
+    byte_vector find_best_key_of_length(byte_vector &bytes, int length){
+        byte_vector out;
+        byte_vector column;
+        for(int i=0; i < length; i++){
+            column.clear();
+            for(int j=i; j < bytes.size(); j+=length)
+                column.push_back(bytes[j]);
+            auto score = find_best_key(column);
+            if(score.first == -1){
+                out.clear();
+                break;
+            }
+            out.push_back(score.first);
+        }
+        return out;
+    }
+
+    bool in(int i, std::vector<int> & v){
+        for(const auto &j: v){
+            if(i == j)
+                return true;
+        }
+        return false;
+    }
+
+    std::vector<int> get_best_key_lengths(std::vector<double> &distances){
+        double min = 1000000;
+        int min_index = -1;
+        std::vector<int> out;
+        for(int i=0; i < 5; i++){
+            for(int index=0; index < distances.size(); index++){
+                if(distances[index] < min && ! in(index, out)){
+                    min = distances[index];
+                    min_index = index;
+                }
+            }
+            if(min_index > -1){
+                out.push_back(min_index);
+                min = 1000000;
+                min_index = -1;
+            }
+        }
+        return out;
     }
 }
