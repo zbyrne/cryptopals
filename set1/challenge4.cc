@@ -2,19 +2,19 @@
 #include <fstream>
 #include "set1.h"
 
-using namespace std;
+using namespace set1;
 
 int main(void){
-    ifstream ifs;
-    vector<byte_vector> ciphers;
-    string buffer;
+    std::ifstream ifs;
+    std::vector<byte_vector> ciphers;
+    std::string buffer;
     int best_score = -1;
     int best_key = -1;
     byte_vector candidate;
     ifs.open("4.txt");
     while(ifs.good()){
-        getline(ifs, buffer);
-            ciphers.push_back(unhexlify(buffer));
+        std::getline(ifs, buffer);
+        ciphers.push_back(unhexlify(buffer));
     }
     for(auto &bytes: ciphers){
         auto key = find_best_key(bytes);
@@ -26,9 +26,9 @@ int main(void){
     }
     auto key_vec = byte_vector(candidate.size(), best_key);
     auto plain_text = xor_bytes(candidate, key_vec);
-    for(int i=0; i < plain_text.size(); i++)
-        cout << plain_text[i];
-    cout << endl;
+    for(const auto &byte: plain_text)
+        std::cout << byte;
+    std::cout << std::endl;
 
     return 0;
 }
