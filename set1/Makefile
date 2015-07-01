@@ -31,3 +31,7 @@ set1.o: set1.cc set1.h
 
 clean:
 	-rm *.out *.o
+
+b64test.out: set1.o b64test.cc
+	$(compile) -o b64test.out b64test.cc set1.o
+	./b64test.out

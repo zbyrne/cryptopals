@@ -46,20 +46,23 @@ namespace set1{
                 count = 0;
             }
         }
-        for(int i=0; i<(bytes.size()%3); i++){
-            buffer <<= 8;
-            if(++count == 3){
-                for(int i=3; i>=0; i--){
-                    index = (buffer >> i*6) & 0x3f;
-                    out.push_back(b64_alpha[index]);
-                }
-            }
-        }
         switch(bytes.size()%3){
         case 1:
+            buffer <<= 16;
+            index = (buffer >> 18) & 0x3f;
+            out.push_back(b64_alpha[index]);
+            index = (buffer >> 12) & 0x3f;
+            out.push_back(b64_alpha[index]);
             out.append("==");
             break;
         case 2:
+            buffer <<= 8;
+            index = (buffer >> 18) & 0x3f;
+            out.push_back(b64_alpha[index]);
+            index = (buffer >> 12) & 0x3f;
+            out.push_back(b64_alpha[index]);
+            index = (buffer >> 6) & 0x3f;
+            out.push_back(b64_alpha[index]);
             out.push_back('=');
             break;
         }
@@ -90,9 +93,14 @@ namespace set1{
         }
         switch(count){
         case 3:
+            buffer <<= 6;
+            out.push_back((buffer >> 16) & 0xff);
             out.push_back((buffer >> 8) & 0xff);
+            break;
         case 2:
-            out.push_back(buffer & 0xff);
+            buffer <<= 12;
+            out.push_back((buffer >> 16) & 0xff);
+            break;
         }
         return out;
     }
@@ -177,10 +185,8 @@ namespace set1{
                 auto b = byte_vector(bytes.begin()+mid,
                                      bytes.begin()+end);
                 distance += hamming_distance(a, b);
-                //cout << (int)a[0] << ' ' << (int)b[0] << endl;
             }
             distance /= i*4;
-            //cout << i << ' ' << distance << endl;
             if(distance < best_distance){
                 best_distance = distance;
                 keysize = i;
